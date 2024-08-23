@@ -8,7 +8,9 @@ metadata:
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/rewrite-target: "/"
     nginx.ingress.kubernetes.io/proxy-body-size: "50m"
-    cert-manager.io/issuer: {{ .Values.ingress.issuer | quote }}
+    {{- with .Values.ingress.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
 
 spec:
   ingressClassName: {{ .Values.ingress.className }}

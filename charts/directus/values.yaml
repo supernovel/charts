@@ -3,7 +3,7 @@ fullnameOverride: ""
 
 ingress:
   className: ""
-  issuer: "letsencrypt-prod"
+  annotations: {}
   directus:
     host: directus.example.com
   code:
