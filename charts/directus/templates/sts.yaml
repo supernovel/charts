@@ -21,8 +21,6 @@ spec:
         ports:
           - containerPort: 8055
         env:
-          - name: PUBLIC_URL
-            value: {{ .Values.ingress.directus.host }}
           - name: KEY
             valueFrom:
               secretKeyRef:
