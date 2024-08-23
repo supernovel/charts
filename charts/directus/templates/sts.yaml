@@ -1,0 +1,125 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "directus.fullname" . }}-sts
+  labels:
+    {{- include "directus.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "directus.selectorLabels" . | nindent 6 }}
+  serviceName: {{ include "directus.fullname" . }}-service
+  template:
+    metadata:
+      labels:
+        {{- include "directus.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: directus
+        image: directus/directus
+        ports:
+          - containerPort: 8055
+        env:
+          - name: PUBLIC_URL
+            value: {{ .Values.ingress.directus.host }}
+          - name: KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "directus.fullname" . }}-server-secret
+                key: key
+                optional: false
+          - name: SECRET
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "directus.fullname" . }}-server-secret
+                key: secret
+                optional: false
+          - name: ADMIN_EMAIL
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "directus.fullname" . }}-admin-secret
+                key: username
+                optional: false
+          - name: ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "directus.fullname" . }}-admin-secret
+                key: password
+                optional: false
+          - name: DB_CLIENT
+            value: "sqlite3"
+          - name: DB_FILENAME
+            value: "/directus/database/data.db"
+          - name: WEBSOCKETS_ENABLED
+            value: "true"
+          - name: LOG_LEVEL
+            value: "info"
+          - name: EXTENSIONS_AUTO_RELOAD
+            value: "true"
+        volumeMounts:
+          - name: data
+            mountPath: /directus/database
+            subPath: database
+          - name: data
+            mountPath: /directus/uploads
+            subPath: uploads
+          - name: extensions
+            mountPath: /directus/extensions
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1024Mi
+          limits:
+            cpu: 1000m
+            memory: 2048Mi
+      - name: code-server
+        image: linuxserver/code-server
+        ports:
+          - containerPort: 8443
+        env:
+          - name: PUID
+            value: "1000"
+          - name: PGID
+            value: "1000"
+          - name: TZ
+            value: "Asia/Seoul"
+          - name: PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "directus.fullname" . }}-admin-secret
+                key: codeServerPassword
+                optional: false
+          - name: SUDO_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "directus.fullname" . }}-admin-secret
+                key: codeServerSudoPassword
+                optional: false
+        volumeMounts:
+          - name: extensions
+            mountPath: /config/workspace/directus
+        resources:
+          requests:
+            cpu: 500m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 1024Mi
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: {{ .Values.storage.directus }}
+    - metadata:
+        name: extensions
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: {{ .Values.storage.code }}

@@ -1,0 +1,17 @@
+nameOverride: ""
+fullnameOverride: ""
+
+ingress:
+  className: ""
+  issuer: "letsencrypt-prod"
+  directus:
+    host: directus.example.com
+  code:
+    host: code.example.com
+
+storage:
+  directus: "100Gi"
+  code: "10Gi"
+
+admin:
+  username: example@test.com

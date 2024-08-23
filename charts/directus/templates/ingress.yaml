@@ -1,0 +1,40 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name:  {{ include "directus.fullname" . }}-ingress
+  labels:
+    {{- include "directus.labels" . | nindent 4 }}
+  annotations:
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: "/"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    cert-manager.io/issuer: {{ .Values.ingress.issuer | quote }}
+
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  tls:
+  - hosts:
+      - {{ .Values.ingress.directus.host | quote }}
+      - {{ .Values.ingress.code.host | quote }}
+    secretName: {{ include "directus.fullname" . }}-tls
+  rules:
+  - host: {{ .Values.ingress.directus.host | quote }}
+    http:
+      paths:
+      - path: "/"
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include "directus.fullname" . }}-service
+            port:
+              number: 8055
+  - host: {{ .Values.ingress.code.host | quote }}
+    http:
+      paths:
+      - path: "/"
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include "directus.fullname" . }}-service
+            port:
+              number: 8443
