@@ -9,9 +9,17 @@ ingress:
   code:
     host: code.example.com
 
-storage:
-  directus: "50Gi"
-  code: "10Gi"
+storage: 
+  directus:
+    storageClassName: ""
+    volumeName: ""
+    accessMode: "ReadWriteOnce"
+    request: "50Gi"
+  code:
+    storageClassName: ""
+    volumeName: ""
+    accessMode: "ReadWriteOnce"
+    request: "10Gi"
 
 admin:
   username: example@test.com

@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "directus.fullname" . }}-pvc
+  annotations:
+    helm.sh/resource-policy: keep
+    helm.sh/hook: "pre-install"
+    helm.sh/hook-delete-policy: "before-hook-creation"
+
+spec:
+  storageClassName: {{ .Values.storage.directus.storageClassName | quote }}
+  {{- if .Values.storage.directus.volumeName }}
+  volumeName: {{ .Values.storage.directus.volumeName | quote }}
+  {{- end }}
+  accessModes:
+    - {{ .Values.storage.directus.accessMode | quote  }}
+  resources:
+    requests:
+      storage: {{ .Values.storage.directus.request | quote  }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "code.fullname" . }}-pvc
+  annotations:
+    helm.sh/resource-policy: keep
+    helm.sh/hook: "pre-install"
+    helm.sh/hook-delete-policy: "before-hook-creation"
+
+spec:
+  storageClassName: {{ .Values.storage.code.storageClassName | quote }}
+  {{- if .Values.storage.code.volumeName }}
+  volumeName: {{ .Values.storage.code.volumeName | quote }}
+  {{- end }}
+  accessModes:
+    - {{ .Values.storage.code.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.storage.code.request | quote }}

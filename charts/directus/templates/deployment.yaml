@@ -1,7 +1,7 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
-  name: {{ include "directus.fullname" . }}-sts
+  name: {{ include "directus.fullname" . }}-deploy
   labels:
     {{- include "directus.labels" . | nindent 4 }}
 spec:
@@ -9,7 +9,6 @@ spec:
   selector:
     matchLabels:
       {{- include "directus.selectorLabels" . | nindent 6 }}
-  serviceName: {{ include "directus.fullname" . }}-service
   template:
     metadata:
       labels:
@@ -26,25 +25,25 @@ spec:
           - name: KEY
             valueFrom:
               secretKeyRef:
-                name: {{ include "directus.fullname" . }}-server-secret
+                name: {{ include "directus.serverSecretName" . }}
                 key: key
                 optional: false
           - name: SECRET
             valueFrom:
               secretKeyRef:
-                name: {{ include "directus.fullname" . }}-server-secret
+                name: {{ include "directus.serverSecretName" . }}
                 key: secret
                 optional: false
           - name: ADMIN_EMAIL
             valueFrom:
               secretKeyRef:
-                name: {{ include "directus.fullname" . }}-admin-secret
+                name: {{ include "directus.adminSecretName" . }}
                 key: username
                 optional: false
           - name: ADMIN_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: {{ include "directus.fullname" . }}-admin-secret
+                name: {{ include "directus.adminSecretName" . }}
                 key: password
                 optional: false
           - name: DB_CLIENT
@@ -58,14 +57,15 @@ spec:
           - name: EXTENSIONS_AUTO_RELOAD
             value: "true"
         volumeMounts:
-          - name: data
+          - name: directus-data
             mountPath: /directus/database
             subPath: database
-          - name: data
+          - name: directus-data
             mountPath: /directus/uploads
             subPath: uploads
-          - name: extensions
+          - name: directus-data
             mountPath: /directus/extensions
+            subPath: extensions
         resources:
           requests:
             cpu: 500m
@@ -73,6 +73,29 @@ spec:
           limits:
             cpu: 1000m
             memory: 2048Mi
+      volumes:
+        - name: directus-data
+          persistentVolumeClaim:
+            claimName: {{ include "directus.pvcName" . }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "code.fullname" . }}-deploy
+  labels:
+    {{- include "code.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "code.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "code.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
       - name: code-server
         image: linuxserver/code-server
         ports:
@@ -87,18 +110,22 @@ spec:
           - name: PASSWORD
             valueFrom:
               secretKeyRef:
-                name: {{ include "directus.fullname" . }}-admin-secret
-                key: codeServerPassword
+                name: {{ include "code.adminSecretName" . }}
+                key: password
                 optional: false
           - name: SUDO_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: {{ include "directus.fullname" . }}-admin-secret
-                key: codeServerSudoPassword
+                name: {{ include "code.adminSecretName" . }}
+                key: sudoPassword
                 optional: false
         volumeMounts:
-          - name: extensions
-            mountPath: /config/workspace/directus
+          - name: directus-data
+            mountPath: /config/directus
+            subPath: extensions
+          - name: data
+            mountPath: /config/workspace
+            subPath: workspace
         resources:
           requests:
             cpu: 500m
@@ -106,20 +133,10 @@ spec:
           limits:
             cpu: 1000m
             memory: 1024Mi
-  volumeClaimTemplates:
-    - metadata:
-        name: data
-      spec:
-        accessModes:
-          - "ReadWriteOnce"
-        resources:
-          requests:
-            storage: {{ .Values.storage.directus }}
-    - metadata:
-        name: extensions
-      spec:
-        accessModes:
-          - "ReadWriteOnce"
-        resources:
-          requests:
-            storage: {{ .Values.storage.code }}
+      volumes:
+        - name: directus-data
+          persistentVolumeClaim:
+            claimName: {{ include "directus.pvcName" . }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "code.pvcName" . }}
