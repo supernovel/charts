@@ -3,15 +3,25 @@ fullnameOverride: ""
 
 ingress:
   className: ""
-  annotations: {}
+  annotations: {
+    "cert-manager.io/cluster-issuer": "letsencrypt-prod"
+  }
   directus:
-    host: directus.example.com
+    host: kreit-directus.supernovel.work
   code:
-    host: code.example.com
+    host: kreit-code.supernovel.work
 
-storage:
-  directus: "50Gi"
-  code: "10Gi"
+storage: 
+  directus:
+    storageClassName: ""
+    volumeName: ""
+    accessMode: "ReadWriteOnce"
+    request: "50Gi"
+  code:
+    storageClassName: ""
+    volumeName: ""
+    accessMode: "ReadWriteOnce"
+    request: "10Gi"
 
 admin:
-  username: example@test.com
+  username: eunjun@kreit.co.kr
