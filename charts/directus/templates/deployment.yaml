@@ -67,12 +67,9 @@ spec:
             mountPath: /directus/extensions
             subPath: extensions
         resources:
-          requests:
-            cpu: 500m
-            memory: 1024Mi
-          limits:
-            cpu: 1000m
-            memory: 2048Mi
+          {{- with .Values.resources.directus }}
+            {{- toYaml . | nindent 10 }}
+          {{- end }}
       volumes:
         - name: directus-data
           persistentVolumeClaim:
@@ -127,12 +124,10 @@ spec:
             mountPath: /config/workspace
             subPath: workspace
         resources:
-          requests:
-            cpu: 500m
-            memory: 512Mi
-          limits:
-            cpu: 1000m
-            memory: 1024Mi
+          {{- with .Values.resources.code }}
+            {{- toYaml . | nindent 10 }}
+          {{- end }}
+
       volumes:
         - name: directus-data
           persistentVolumeClaim:

@@ -21,5 +21,21 @@ storage:
     accessMode: "ReadWriteOnce"
     request: "10Gi"
 
+resources:
+  directus:
+    requests:
+      cpu: "1"
+      memory: 1024Mi
+    limits:
+      cpu: "2"
+      memory: 2048Mi
+  code:
+    requests:
+      cpu: "1"
+      memory: 1024Mi
+    limits:
+      cpu: "2"
+      memory: 2048Mi
+
 admin:
   username: example@test.com
