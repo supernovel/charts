@@ -1,0 +1,43 @@
+# Default values for pocketbase.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+image:
+  repository: supernovel/pocketbase
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "0.22.20-1"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+podLabels: {}
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+service:
+  type: ClusterIP
+  port: 8090
+
+ingress:
+  className: ""
+  annotations: {}
+  # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  host: chart-example.locals
+
+storage: 
+  storageClassName: ""
+  volumeName: ""
+  accessMode: "ReadWriteOnce"
+  request: "50Gi"
+
+admin:
+  username: example@test.com

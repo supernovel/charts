@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "pocketbase.fullname" . }}
+  labels:
+    {{- include "pocketbase.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "pocketbase.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "pocketbase.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: init-{{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command:
+            - /bin/sh
+            - -c
+            - |
+              /app/pocketbase migrate up;
+              /app/pocketbase admin create $ADMIN_EMAIL $ADMIN_PASSWORD;
+          env:
+            - name: ADMIN_EMAIL
+              valueFrom:
+              secretKeyRef:
+                name: {{ include "pocketbase.fullname" . }}-admin-secret
+                key: username
+                optional: false
+            - name: ADMIN_PASSWORD
+              valueFrom:
+              secretKeyRef:
+                name: {{ include "pocketbase.fullname" . }}-admin-secret
+                key: password
+                optional: false
+          volumeMounts:
+            - name: pocketbase-data
+              mountPath: /app/pb_data
+              subPath: pb_data
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: pocketbase-data
+              mountPath: /app/pb_data
+              subPath: pb_data
+            - name: pocketbase-data
+              mountPath: /app/pb_hooks
+              subPath: pb_hooks
+            - name: pocketbase-data
+              mountPath: /app/pb_public
+              subPath: pb_public
+      volumes:
+        - name: pocketbase-data
+          persistentVolumeClaim:
+            claimName: {{ include "pocketbase.fullname" . }}-pvc

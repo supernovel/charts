@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name:  {{ include "pocketbase.fullname" . }}-ingress
+  labels:
+    {{- include "pocketbase.labels" . | nindent 4 }}
+  annotations:
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: "/"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    {{- with .Values.ingress.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  tls:
+  - hosts:
+      - {{ .Values.ingress.host | quote }}
+    secretName: {{ include "pocketbase.fullname" . }}-tls
+  rules:
+  - host: {{ .Values.ingress.host | quote }}
+    http:
+      paths:
+      - path: "/"
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include "pocketbase.fullname" . }}-service
+            port:
+              number: {{ .Values.service.port }}
