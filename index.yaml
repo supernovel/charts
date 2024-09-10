@@ -71,4 +71,15 @@ entries:
     urls:
     - https://github.com/supernovel/helm-charts/releases/download/directus-0.1.0/directus-0.1.0.tgz
     version: 0.1.0
-generated: "2024-08-27T00:35:45.582400501Z"
+  pocketbase:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2024-09-10T10:27:41.360837555Z"
+    description: A Helm chart for Kubernetes
+    digest: a11acfb44efbf73bd8850693735934e4dfc866d776e573450780c1449dd280db
+    name: pocketbase
+    type: application
+    urls:
+    - https://github.com/supernovel/helm-charts/releases/download/pocketbase-0.1.0/pocketbase-0.1.0.tgz
+    version: 0.1.0
+generated: "2024-09-10T10:27:41.36085624Z"
