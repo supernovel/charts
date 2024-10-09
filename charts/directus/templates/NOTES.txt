@@ -7,3 +7,12 @@ To learn more about the release, try:
   $ helm status {{ .Release.Name }}
   $ helm get all {{ .Release.Name }}
 
+Admin Info:
+
+  username is `{{ .Values.admin.username }}`
+
+To get admin password run:
+
+  kubectl get secret --namespace {{ .Release.Namespace }} {{ include "directus.adminSecretName" . }} -o jsonpath="{.data.password}" | base64 --decode
+
+  

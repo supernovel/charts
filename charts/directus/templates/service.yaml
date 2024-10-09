@@ -12,19 +12,3 @@ spec:
   type: ClusterIP
   selector:
     {{- include "directus.selectorLabels" . | nindent 4 }}
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "code.fullname" . }}-service
-  labels:
-    {{- include "code.labels" . | nindent 4 }}
-spec:
-  ports:
-    - port: 8443
-      name: web
-      targetPort: 8443
-  type: ClusterIP
-  selector:
-    {{- include "code.selectorLabels" . | nindent 4 }}

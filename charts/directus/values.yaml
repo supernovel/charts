@@ -6,8 +6,6 @@ ingress:
   annotations: {}
   directus:
     host: directus.example.com
-  code:
-    host: code.example.com
 
 storage: 
   directus:
@@ -15,21 +13,9 @@ storage:
     volumeName: ""
     accessMode: "ReadWriteOnce"
     request: "50Gi"
-  code:
-    storageClassName: ""
-    volumeName: ""
-    accessMode: "ReadWriteOnce"
-    request: "10Gi"
 
 resources:
   directus:
-    requests:
-      cpu: "1"
-      memory: 1024Mi
-    limits:
-      cpu: "2"
-      memory: 2048Mi
-  code:
     requests:
       cpu: "1"
       memory: 1024Mi
