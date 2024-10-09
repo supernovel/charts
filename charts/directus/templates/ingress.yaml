@@ -17,7 +17,6 @@ spec:
   tls:
   - hosts:
       - {{ .Values.ingress.directus.host | quote }}
-      - {{ .Values.ingress.code.host | quote }}
     secretName: {{ include "directus.fullname" . }}-tls
   rules:
   - host: {{ .Values.ingress.directus.host | quote }}
